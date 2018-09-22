@@ -6,7 +6,6 @@ import javax.swing.text.MaskFormatter;
 import java.awt.event.*;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.sql.SQLException;
 import java.text.ParseException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -16,10 +15,8 @@ import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
-
 import sv.edu.unab.dominio.Cliente;
 import sv.edu.unab.infraestructura.*;
-import sv.edu.unab.negocio.ClienteN;
 
 public class CRUDCliente {
     public JPanel pnldatos;
@@ -43,6 +40,8 @@ public class CRUDCliente {
     private JLabel lblEdadMenor;
     private JLabel lblMayor;
     private JLabel lblEdadProm;
+    private JTextField txtMayorA;
+    private JTextField txtMenorA;
 
     List<Cliente> listadoModel;
     long ID;
@@ -58,7 +57,7 @@ public class CRUDCliente {
     Clientei cn=new Clientei();
     DateTimeFormatter dtf=DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
-    public CRUDCliente() throws SQLException {
+    public CRUDCliente() {
         initcomponentes();
         txtNombre.setText("Antony David");
         txtApellidoPaterno.setText("Duarte");
@@ -69,12 +68,11 @@ public class CRUDCliente {
         ftxFechaN.setText("05111996");
         txtDireccion.setText("Potrero Sula");
         txtEmail.setText("antony@gmail.com");
-
+        txtBuscar.addKeyListener(new KeyAdapter() {
+        });
     }
     public void initcomponentes(){
-
         mostrarClientes.accept(tblCliente);
-
         tblCliente.setFillsViewportHeight(true);
         if (listadoModel==null){
             listadoModel=new ArrayList<>();
@@ -153,40 +151,67 @@ public class CRUDCliente {
                 limpiar();
             }
         });
-
-        txtBuscar.addKeyListener(new KeyListener() {
-            @Override
-            public void keyTyped(KeyEvent e) {
-
-            }
-
-            @Override
-            public void keyPressed(KeyEvent e) {
-
-            }
-
+        txtBuscar.addKeyListener(new KeyAdapter() {
             @Override
             public void keyReleased(KeyEvent e) {
+                listadoModel=cn.actualizarDatos.apply(tblCliente);
+                List<Cliente> busqueda=listadoModel.stream().filter(m->{
+                    boolean respuesta=false;
+                    if (m.getNombre().contains(txtBuscar.getText())||
+                            m.getApellidopaterno().contains(txtBuscar.getText())||
+                            m.getApellidomaterno().contains(txtBuscar.getText())||
+                            m.getDui().contains(txtBuscar.getText())||
+                            m.getNit().contains(txtBuscar.getText())||
+                            m.getTelefono().contains(txtBuscar.getText())||
+                            m.getDireccion().contains(txtBuscar.getText())||
+                            m.getEmail().contains(txtBuscar.getText())
+                    ){
+                        respuesta=true;
+                    }
+                    return  respuesta;
+                }).collect(Collectors.toList());
+                mostrarCoincidencias.accept(tblCliente,busqueda);
+            }
+        });
+        txtMayorA.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyReleased(KeyEvent e) {
+                super.keyReleased(e);
                 try {
-                    listadoModel=ClienteN.mostrar_Cliente();
-                    List<Cliente> busqueda=listadoModel.stream().filter(m->{
+                    listadoModel=cn.actualizarDatos.apply(tblCliente);
+                    List<Cliente> Mayora=listadoModel.stream().filter(m->{
                         boolean respuesta=false;
-                        if (m.getNombre().contains(txtBuscar.getText())||
-                                m.getApellidopaterno().contains(txtBuscar.getText())||
-                                m.getApellidomaterno().contains(txtBuscar.getText())||
-                                m.getDui().contains(txtBuscar.getText())||
-                                m.getNit().contains(txtBuscar.getText())||
-                                m.getTelefono().contains(txtBuscar.getText())||
-                                m.getDireccion().contains(txtBuscar.getText())||
-                                m.getEmail().contains(txtBuscar.getText())
-                        ){
+                        if (m.getFechaNacimiento().until(LocalDate.now(),ChronoUnit.YEARS)>=Integer.valueOf(txtMayorA.getText())){
                             respuesta=true;
                         }
                         return  respuesta;
                     }).collect(Collectors.toList());
-                    mostrarCoincidencias.accept(tblCliente,busqueda);
-                } catch (SQLException e1) {
-                    e1.printStackTrace();
+                    mostrarCoincidencias.accept(tblCliente,Mayora);
+                } catch (NumberFormatException e1){
+
+                }
+            }
+        });
+        txtMenorA.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyReleased(KeyEvent e) {
+                super.keyReleased(e);
+                if (txtMenorA.getText().length()<1){
+                    mostrarCoincidencias.accept(tblCliente,listadoModel);
+                }else{
+                    try {
+                        listadoModel=cn.actualizarDatos.apply(tblCliente);
+                        List<Cliente> Menora=listadoModel.stream().filter(m->{
+                            boolean respuesta=false;
+                            if (m.getFechaNacimiento().until(LocalDate.now(),ChronoUnit.YEARS)<=Integer.valueOf(txtMenorA.getText())){
+                                respuesta=true;
+
+                            }
+                            return  respuesta;
+                        }).collect(Collectors.toList());
+                        mostrarCoincidencias.accept(tblCliente,Menora);
+                    } catch (NumberFormatException e1){
+                    }
                 }
             }
         });
@@ -206,10 +231,11 @@ public class CRUDCliente {
                     Email=(tblCliente.getValueAt(i,10).toString());
                 }catch(ArrayIndexOutOfBoundsException e1){
                 }
-
             }
-
         });
+        FormatearTXT(ftxFechaN, ftxDui, ftxNit, ftxTelefono);
+    }
+    static void FormatearTXT(JFormattedTextField ftxFechaN, JFormattedTextField ftxDui, JFormattedTextField ftxNit, JFormattedTextField ftxTelefono) {
         try{
             MaskFormatter mascara=new MaskFormatter("##/##/####");
             mascara.setPlaceholderCharacter('_');
@@ -226,11 +252,9 @@ public class CRUDCliente {
         }catch(ParseException e){
             e.printStackTrace();
         }
-
     }
     Consumer<JTable> mostrarClientes=(t)->{
-        try {
-            listadoModel= ClienteN.mostrar_Cliente();
+            listadoModel=cn.actualizarDatos.apply(t);
             Cliente edadMenor=listadoModel.stream().min((e1,e2)->{
                 Long edad1=e1.getFechaNacimiento().until(LocalDate.now(), ChronoUnit.YEARS);
                 Long edad2=e2.getFechaNacimiento().until(LocalDate.now(),ChronoUnit.YEARS);
@@ -254,18 +278,10 @@ public class CRUDCliente {
             BigDecimal bd=edadPromedio.setScale(2, RoundingMode.HALF_UP);
             lblEdadProm.setText("Edad Promedio: "+bd.setScale(2,RoundingMode.HALF_UP).toString()+" Años");
 
-            cn.actualizarDatos(t);
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+            cn.actualizarDatos.apply(t);
     };
     BiConsumer<JTable,List<Cliente>> mostrarCoincidencias=(t, l)->{
-        try {
-            cn.mostrarCoincidencias(t,l);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+            cn.mostrarCoincidencias.accept(t,l);
     };
     public void limpiar(){
         txtNombre.setText(null);
@@ -283,14 +299,10 @@ public class CRUDCliente {
         int alto = java.awt.Toolkit.getDefaultToolkit().getScreenSize().height;
         JFrame frm=new JFrame("Administracion de Clientes");
         frm.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        try {
-            frm.setContentPane(new CRUDCliente().pnlroot);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        frm.setContentPane(new CRUDCliente().pnlroot);
         frm.setLocationRelativeTo(null);
         frm.pack();
         frm.setVisible(true);
-        frm.setBounds(((ancho / 2) - (frm.getWidth()/ 2)*(2)), (alto / 2) - (frm.getHeight() / 2)*(1), frm.getWidth()*(2), frm.getHeight()*(1));
+        frm.setBounds(((ancho / 2) - (frm.getWidth()/ 2)*(1)), (alto / 2) - (frm.getHeight() / 2)*(1), frm.getWidth()*(1), frm.getHeight()*(1));
     }
 }

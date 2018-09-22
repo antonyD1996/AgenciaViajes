@@ -204,22 +204,7 @@ public class CRUDEmpleado {
 
         });
 
-        try{
-            MaskFormatter mascara=new MaskFormatter("##/##/####");
-            mascara.setPlaceholderCharacter('_');
-            MaskFormatter mascara1=new MaskFormatter("########-#");
-            mascara1.setPlaceholderCharacter(' ');
-            MaskFormatter mascara2=new MaskFormatter("####-######-###-#");
-            mascara.setPlaceholderCharacter(' ');
-            MaskFormatter mascara3=new MaskFormatter("####-####");
-            mascara3.setPlaceholderCharacter(' ');
-            ftxFechaN.setFormatterFactory(new DefaultFormatterFactory(mascara));
-            ftxDui.setFormatterFactory(new DefaultFormatterFactory(mascara1));
-            ftxNit.setFormatterFactory(new DefaultFormatterFactory(mascara2));
-            ftxTelefono.setFormatterFactory(new DefaultFormatterFactory(mascara3));
-        }catch(ParseException e){
-            e.printStackTrace();
-        }
+        CRUDCliente.FormatearTXT(ftxFechaN, ftxDui, ftxNit, ftxTelefono);
     }
     Consumer<JTable> mostrarEmpleados=(t)->{
         try {

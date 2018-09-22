@@ -1,13 +1,7 @@
 package sv.edu.unab.presentacion;
 
 import javax.swing.*;
-import javax.xml.transform.Source;
-import java.awt.*;
-import java.awt.geom.Arc2D;
-import java.awt.image.ImageObserver;
-import java.awt.image.ImageProducer;
 import java.sql.SQLException;
-import sv.edu.unab.presentacion.CRUDEmpleado;
 
 public class Principal {
     private JPanel pnlCargar;
@@ -38,11 +32,7 @@ public class Principal {
             int alto = java.awt.Toolkit.getDefaultToolkit().getScreenSize().height;
             JFrame frm=new JFrame("Administracion de Clientes");
             //frm.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            try {
-                frm.setContentPane(new CRUDCliente().pnlroot);
-            } catch (SQLException e1) {
-                e1.printStackTrace();
-            }
+            frm.setContentPane(new CRUDCliente().pnlroot);
             frm.setLocationRelativeTo(null);
             frm.pack();
             frm.setVisible(true);

@@ -3,19 +3,15 @@ package sv.edu.unab.infraestructura;
 import sv.edu.unab.dominio.Cliente;
 import sv.edu.unab.negocio.*;
 import sv.edu.unab.presentacion.CRUDCliente;
-import sv.edu.unab.presentacion.CRUDEmpleado;
-import sv.edu.unab.presentacion.CRUDCliente.*;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.text.DefaultFormatterFactory;
-import javax.swing.text.MaskFormatter;
-import java.sql.SQLException;
-import java.text.ParseException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
 
 public class Clientei {
     DateTimeFormatter dtf=DateTimeFormatter.ofPattern("dd/MM/yyyy");
@@ -32,15 +28,7 @@ public class Clientei {
     public Consumer<Cliente> eliminarCliente= c -> {
         new ClienteN().eliminarCliente.accept(c);
     };
-    public void actualizarDatos(JTable tabla) throws SQLException {
-        listado=ClienteN.mostrar_Cliente();
-        cargarTabla(tabla, listado);
-    }
-    public void mostrarCoincidencias(JTable tabla, List<Cliente> listado1) throws SQLException {
-        cargarTabla(tabla,listado1);
-    }
-    public void cargarTabla(JTable tabla, List<Cliente> listado){
-
+    public BiConsumer<JTable, List<Cliente>> cargarTabla=(tabla, listado)->{
         DefaultTableModel model=new DefaultTableModel();
         model.addColumn("ID");
         model.addColumn("Nombres");
@@ -70,9 +58,15 @@ public class Clientei {
             });
         });
         tabla.setModel(model);
-
-    }
-
+    };
+    public Function<JTable,List<Cliente>> actualizarDatos=tabla->{
+        listado=ClienteN.listadoC.get();
+        cargarTabla.accept(tabla, listado);
+        return listado;
+    };
+    public BiConsumer<JTable, List<Cliente>> mostrarCoincidencias=(tabla, listado)->{
+        cargarTabla.accept(tabla,listado);
+    };
 
 }
 
