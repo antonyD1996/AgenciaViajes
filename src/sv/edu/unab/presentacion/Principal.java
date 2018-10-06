@@ -2,29 +2,34 @@ package sv.edu.unab.presentacion;
 
 import javax.swing.*;
 import java.sql.SQLException;
+import sv.edu.unab.presentacion.Menu;
 
 public class Principal {
     private JPanel pnlCargar;
     private JButton btnEmpleados;
     private JButton btnClientes;
     private JPanel panel1;
+    private JButton button1;
     CRUDEmpleado c;
 
     public Principal() {
+        button1.addActionListener(e->{
+            Menu menu=new Menu();
+            menu.setLocationRelativeTo(null);
+            menu.setVisible(true);
+
+        });
+
         btnEmpleados.addActionListener(e->{
             int ancho = java.awt.Toolkit.getDefaultToolkit().getScreenSize().width;
             int alto = java.awt.Toolkit.getDefaultToolkit().getScreenSize().height;
             JFrame frm=new JFrame("Administracion de Empleados");
             //frm.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            try {
-                frm.setContentPane(new CRUDEmpleado().pnlroot);
-            } catch (SQLException e1) {
-                e1.printStackTrace();
-            }
+            frm.setContentPane(new CRUDEmpleado().pnlroot);
             frm.setLocationRelativeTo(null);
             frm.pack();
             frm.setVisible(true);
-            frm.setBounds(((ancho / 2) - (frm.getWidth()/ 2)*(2)), (alto / 2) - (frm.getHeight() / 2)*(1), frm.getWidth()*(2), frm.getHeight()*(3/2));
+            frm.setBounds(((ancho / 2) - (frm.getWidth()/ 2)*(1)), (alto / 2) - (frm.getHeight() / 2)*(1), frm.getWidth()*(1), frm.getHeight()*(1));
 
         });
         btnClientes.addActionListener(e->{
@@ -36,7 +41,7 @@ public class Principal {
             frm.setLocationRelativeTo(null);
             frm.pack();
             frm.setVisible(true);
-            frm.setBounds(((ancho / 2) - (frm.getWidth()/ 2)*(2)), (alto / 2) - (frm.getHeight() / 2)*(1), frm.getWidth()*(2), frm.getHeight()*(3/2));
+            frm.setBounds(((ancho / 2) - (frm.getWidth()/ 2)*(1)), (alto / 2) - (frm.getHeight() / 2)*(1), frm.getWidth()*(1), frm.getHeight()*(1));
 
         });
     }

@@ -17,8 +17,9 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import sv.edu.unab.dominio.Cliente;
 import sv.edu.unab.infraestructura.*;
+import javax.swing.table.TableColumn;
 
-public class CRUDCliente {
+public class CRUDCliente extends JInternalFrame{
     public JPanel pnldatos;
     private JTextField txtApellidoPaterno;
     private JTextField txtApellidoMaterno;
@@ -42,6 +43,7 @@ public class CRUDCliente {
     private JLabel lblEdadProm;
     private JTextField txtMayorA;
     private JTextField txtMenorA;
+    public JInternalFrame internalFrame;
 
     List<Cliente> listadoModel;
     long ID;
@@ -58,20 +60,29 @@ public class CRUDCliente {
     DateTimeFormatter dtf=DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     public CRUDCliente() {
+        internalFrame=new JInternalFrame();
+
         initcomponentes();
-        txtNombre.setText("Antony David");
-        txtApellidoPaterno.setText("Duarte");
-        txtApellidoMaterno.setText("Perlera");
-        ftxDui.setText("123456789");
-        ftxNit.setText("12340511961231");
-        ftxTelefono.setText("70079032");
-        ftxFechaN.setText("05111996");
-        txtDireccion.setText("Potrero Sula");
-        txtEmail.setText("antony@gmail.com");
-        txtBuscar.addKeyListener(new KeyAdapter() {
-        });
+        setClosable(true);
+        setIconifiable(true);
+        setResizable(false);
+        setTitle("Clientes");
+        setLayout(null);
+        setSize(800,700);
+
+//        txtNombre.setText("Antony David");
+//        txtApellidoPaterno.setText("Duarte");
+//        txtApellidoMaterno.setText("Perlera");
+//        ftxDui.setText("123456789");
+//        ftxNit.setText("12340511961231");
+//        ftxTelefono.setText("70079032");
+//        ftxFechaN.setText("05111996");
+//        txtDireccion.setText("Potrero Sula");
+//        txtEmail.setText("antony@gmail.com");
+
     }
     public void initcomponentes(){
+
         mostrarClientes.accept(tblCliente);
         tblCliente.setFillsViewportHeight(true);
         if (listadoModel==null){
@@ -234,6 +245,7 @@ public class CRUDCliente {
             }
         });
         FormatearTXT(ftxFechaN, ftxDui, ftxNit, ftxTelefono);
+
     }
     static void FormatearTXT(JFormattedTextField ftxFechaN, JFormattedTextField ftxDui, JFormattedTextField ftxNit, JFormattedTextField ftxTelefono) {
         try{
@@ -283,6 +295,7 @@ public class CRUDCliente {
     BiConsumer<JTable,List<Cliente>> mostrarCoincidencias=(t, l)->{
             cn.mostrarCoincidencias.accept(t,l);
     };
+
     public void limpiar(){
         txtNombre.setText(null);
         txtApellidoPaterno.setText(null);

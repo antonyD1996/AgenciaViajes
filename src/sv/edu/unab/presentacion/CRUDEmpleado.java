@@ -1,26 +1,23 @@
 package sv.edu.unab.presentacion;
 
 import sv.edu.unab.dominio.Empleado;
-import sv.edu.unab.dominio.Persona;
 import sv.edu.unab.infraestructura.Empleadoi;
 
 import javax.swing.*;
-import javax.swing.text.DefaultFormatterFactory;
-import javax.swing.text.MaskFormatter;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.sql.SQLException;
-import java.text.ParseException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
-public class CRUDEmpleado {
+public class CRUDEmpleado extends JInternalFrame{
     public JPanel pnlroot;
     private JPanel pnldatos;
     private JTextField txtApellidoPaterno;
@@ -42,6 +39,10 @@ public class CRUDEmpleado {
     private JButton btnCancelar;
     private JTextField txtBuscar;
     private JLabel lblEdadMenor;
+    private JLabel lblMayor;
+    private JLabel lblEdadProm;
+    private JTextField txtMayorA;
+    private JTextField txtMenorA;
 
     List<Empleado> listadoModel;
     long ID;
@@ -60,22 +61,29 @@ public class CRUDEmpleado {
     DateTimeFormatter dtf=DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
 
-    public CRUDEmpleado() throws SQLException {
+    public CRUDEmpleado() {
+
         initcomponentes();
-        txtNombre.setText("Antony David");
-        txtApellidoPaterno.setText("Duarte");
-        txtApellidoMaterno.setText("Perlera");
-        ftxDui.setText("123456789");
-        ftxNit.setText("12340511961231");
-        ftxTelefono.setText("70079032");
-        ftxFechaN.setText("05111996");
-        txtDireccion.setText("Potrero Sula");
-        txtEmail.setText("antony@gmail.com");
-        txtSeguro.setText("123456789");
-        txtAFP.setText("Crecer");
+        setClosable(true);
+        setIconifiable(true);
+        setResizable(false);
+        setTitle("Empleados");
+        setLayout(null);
+        setSize(800,700);
+//        txtNombre.setText("Antony David");
+//        txtApellidoPaterno.setText("Duarte");
+//        txtApellidoMaterno.setText("Perlera");
+//        ftxDui.setText("123456789");
+//        ftxNit.setText("12340511961231");
+//        ftxTelefono.setText("70079032");
+//        ftxFechaN.setText("05111996");
+//        txtDireccion.setText("Potrero Sula");
+//        txtEmail.setText("antony@gmail.com");
+//        txtSeguro.setText("123456789");
+//        txtAFP.setText("Crecer");
     }
 
-    public void initcomponentes() throws SQLException {
+    public void initcomponentes() {
         mostrarEmpleados.accept(tblEmpleado);
 
         tblEmpleado.setFillsViewportHeight(true);
@@ -176,7 +184,66 @@ public class CRUDEmpleado {
 
             @Override
             public void keyReleased(KeyEvent e) {
-                mostrarCoincidencias.accept(tblEmpleado,txtBuscar.getText());
+
+                listadoModel=emp.actualizarDatos.apply(tblEmpleado);
+                List<Empleado> busqueda=listadoModel.stream().filter(m->{
+                    boolean respuesta=false;
+                    if (m.getNombre().contains(txtBuscar.getText())||
+                            m.getApellidopaterno().contains(txtBuscar.getText())||
+                            m.getApellidomaterno().contains(txtBuscar.getText())||
+                            m.getDui().contains(txtBuscar.getText())||
+                            m.getNit().contains(txtBuscar.getText())||
+                            m.getTelefono().contains(txtBuscar.getText())||
+                            m.getDireccion().contains(txtBuscar.getText())||
+                            m.getEmail().contains(txtBuscar.getText())
+                    ){
+                        respuesta=true;
+                    }
+                    return  respuesta;
+                }).collect(Collectors.toList());
+                mostrarCoincidencias.accept(tblEmpleado,busqueda);
+            }
+        });
+        txtMayorA.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyReleased(KeyEvent e) {
+                super.keyReleased(e);
+                try {
+                    listadoModel=emp.actualizarDatos.apply(tblEmpleado);
+                    List<Empleado> Mayora=listadoModel.stream().filter(m->{
+                        boolean respuesta=false;
+                        if (m.getFechaNacimiento().until(LocalDate.now(),ChronoUnit.YEARS)>=Integer.valueOf(txtMayorA.getText())){
+                            respuesta=true;
+                        }
+                        return  respuesta;
+                    }).collect(Collectors.toList());
+                    mostrarCoincidencias.accept(tblEmpleado,Mayora);
+                } catch (NumberFormatException e1){
+
+                }
+            }
+        });
+        txtMenorA.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyReleased(KeyEvent e) {
+                super.keyReleased(e);
+                if (txtMenorA.getText().length()<1){
+                    mostrarCoincidencias.accept(tblEmpleado,listadoModel);
+                }else{
+                    try {
+                        listadoModel=emp.actualizarDatos.apply(tblEmpleado);
+                        List<Empleado> Menora=listadoModel.stream().filter(m->{
+                            boolean respuesta=false;
+                            if (m.getFechaNacimiento().until(LocalDate.now(),ChronoUnit.YEARS)<=Integer.valueOf(txtMenorA.getText())){
+                                respuesta=true;
+
+                            }
+                            return  respuesta;
+                        }).collect(Collectors.toList());
+                        mostrarCoincidencias.accept(tblEmpleado,Menora);
+                    } catch (NumberFormatException e1){
+                    }
+                }
             }
         });
 
@@ -207,20 +274,34 @@ public class CRUDEmpleado {
         CRUDCliente.FormatearTXT(ftxFechaN, ftxDui, ftxNit, ftxTelefono);
     }
     Consumer<JTable> mostrarEmpleados=(t)->{
-        try {
-            emp.actualizarDatos(t);
+        listadoModel=emp.actualizarDatos.apply(t);
+        Empleado edadMenor=listadoModel.stream().min((e1,e2)->{
+            Long edad1=e1.getFechaNacimiento().until(LocalDate.now(), ChronoUnit.YEARS);
+            Long edad2=e2.getFechaNacimiento().until(LocalDate.now(),ChronoUnit.YEARS);
+            return edad1.compareTo(edad2);
+        }).get();
+        lblEdadMenor.setText("Menor: "+edadMenor.getNombre()+" "+edadMenor.getApellidopaterno()+"("+edadMenor.getFechaNacimiento().until(LocalDate.now(),ChronoUnit.YEARS)+" Años)");
 
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        Empleado edadMayor=listadoModel.stream().max((e1,e2)->{
+            Long edad1=e1.getFechaNacimiento().until(LocalDate.now(), ChronoUnit.YEARS);
+            Long edad2=e2.getFechaNacimiento().until(LocalDate.now(),ChronoUnit.YEARS);
+            return edad1.compareTo(edad2);
+        }).get();
+        lblMayor.setText("Mayor: "+edadMayor.getNombre()+" "+edadMayor.getApellidopaterno()+"("+edadMayor.getFechaNacimiento().until(LocalDate.now(),ChronoUnit.YEARS)+" Años)");
+
+        BigDecimal edadPromedio=listadoModel.stream()
+                .map(e->{
+                    Long edad=e.getFechaNacimiento().until(LocalDate.now(),ChronoUnit.YEARS);
+                    return new BigDecimal(edad);
+                })
+                .reduce((e1,e2)->(e1.add(e2).divide(new BigDecimal(2)))).get();
+        BigDecimal bd=edadPromedio.setScale(2, RoundingMode.HALF_UP);
+        lblEdadProm.setText("Edad Promedio: "+bd.setScale(2,RoundingMode.HALF_UP).toString()+" Años");
+            emp.actualizarDatos.apply(t);
     };
-    BiConsumer<JTable,String> mostrarCoincidencias=(t, p)->{
-        try {
-            emp.mostrarCoincidencias(t,p);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    };
+        BiConsumer<JTable,List<Empleado>> mostrarCoincidencias=(t, l)->{
+            emp.mostrarCoincidencias.accept(t,l);
+        };
     public void limpiar(){
         txtNombre.setText(null);
         txtApellidoPaterno.setText(null);
@@ -237,7 +318,6 @@ public class CRUDEmpleado {
     }
 
     public static void main(String[] args) throws SQLException {
-
         int ancho = java.awt.Toolkit.getDefaultToolkit().getScreenSize().width;
         int alto = java.awt.Toolkit.getDefaultToolkit().getScreenSize().height;
         JFrame frm=new JFrame("Administracion de Empleados");

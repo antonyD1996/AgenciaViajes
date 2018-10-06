@@ -7,10 +7,15 @@ import java.util.List;
 import java.util.function.*;
 import java.util.function.Supplier;
 import java.util.function.BiConsumer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import sv.edu.unab.dominio.Cliente;
 
 
 public class ClienteN{
+    private static final Logger LOG=Logger.getLogger("sv.edu.unab.agenciavuelo");
+
     public static BiConsumer<List<Cliente>, ResultSet> cargarDatos=(listado,rs)->{
         try{
             while (rs.next()) {
@@ -33,10 +38,13 @@ public class ClienteN{
 
     };
     public static Supplier<List<Cliente>> listadoC=()->{
-        Connection Conex = ConexionDB.getConnection();
-        PreparedStatement Ps = null;
-        ArrayList<Cliente> listado = new ArrayList<Cliente>();
+        ArrayList<Cliente> listado = new ArrayList<>();
+        LOG.log(Level.INFO,"[ClienteN][INIT]->Listado de Clientes");
         try{
+
+            Connection Conex =new Conexion().getConexion();
+            PreparedStatement Ps = null;
+
             Ps = Conex.prepareStatement("select*from avr.vista_clientes");
             ResultSet rs = Ps.executeQuery();
             cargarDatos.accept(listado,rs);
@@ -45,14 +53,17 @@ public class ClienteN{
         }catch (SQLException e1){
 
         }
+
         return listado;
     };
 
 
     public Consumer<Cliente> insertarCliente=(c)->{
-        Connection Conex=ConexionDB.getConnection();
+
+        LOG.log(Level.INFO,"[ClienteN][INIT]->Insertar Cliente");
         PreparedStatement p=null;
         try {
+            Connection Conex =new Conexion().getConexion();
             p=Conex.prepareStatement("select avr.insert_cliente('"
                     +c.getNombre()+"','"
                     +c.getApellidopaterno()+"','"
@@ -71,9 +82,10 @@ public class ClienteN{
     };
 
     public Consumer<Cliente> editarCliente=(c)->{
-        Connection Conex=ConexionDB.getConnection();
+        LOG.log(Level.INFO,"[ClienteN][INIT]->Editar Cliente");
         PreparedStatement p=null;
         try {
+            Connection Conex =new Conexion().getConexion();
             p=Conex.prepareStatement("select avr.update_cliente("
                     +c.getId()+",'"
                     +c.getNombre()+"','"
@@ -92,10 +104,11 @@ public class ClienteN{
         }
     };
     public Consumer<Cliente> eliminarCliente=(c)->{
-        Connection Conex=ConexionDB.getConnection();
+        LOG.log(Level.INFO,"[ClienteN][INIT]->Eliminar Cliente");
         PreparedStatement ps=null;
 
         try {
+            Connection Conex =new Conexion().getConexion();
             ps=Conex.prepareStatement("SELECT avr.eliminar_cliente("+c.getId()+")");
             ps.executeQuery();
             Conex.close();

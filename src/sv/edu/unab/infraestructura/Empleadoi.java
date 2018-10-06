@@ -1,17 +1,21 @@
 package sv.edu.unab.infraestructura;
 
+import sv.edu.unab.dominio.Cliente;
 import sv.edu.unab.dominio.Empleado;
 import sv.edu.unab.negocio.*;
 import sv.edu.unab.presentacion.CRUDEmpleado;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumn;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 public class Empleadoi {
     DateTimeFormatter dtf=DateTimeFormatter.ofPattern("dd/MM/yyyy");
@@ -28,25 +32,8 @@ public class Empleadoi {
     public Consumer<Empleado> eliminarEmpleado= em -> {
         new EmpleadoN().eliminarEmpleado.accept(em);
     };
-    public void actualizarDatos(JTable tabla) throws SQLException {
-        listado=EmpleadoN.mostrar_Empleado();
-        cargarTabla(tabla, listado);
-//        List<Persona> listado=EmpleadoN.mostrar_Empleado();
-//
-//        Persona edadMenor=listado.stream().min((e1,e2)->{
-//            Long edad1=e1.getFechaNacimiento().until(LocalDate.now(), ChronoUnit.YEARS);
-//            Long edad2=e2.getFechaNacimiento().until(LocalDate.now(),ChronoUnit.YEARS);
-//            return edad1.compareTo(edad2);
-//        }).get();
-//
-//        crudEmpleado.lblEdadMenor.setText(edadMenor.getNombre()+" "+edadMenor.getApellidopaterno());
-    }
-    public void mostrarCoincidencias(JTable tabla, String buscar) throws SQLException {
-        listado=EmpleadoN.buscar_Empleado(buscar);
-        cargarTabla(tabla,listado);
-    }
-    public void cargarTabla(JTable tabla, List<Empleado> listado){
 
+    public BiConsumer<JTable, List<Empleado>> cargarTabla=(tabla, listado)->{
         DefaultTableModel model=new DefaultTableModel();
         model.addColumn("ID");
         model.addColumn("Nombres");
@@ -80,7 +67,24 @@ public class Empleadoi {
             });
         });
         tabla.setModel(model);
-
-    }
+    };
+    public Function<JTable,List<Empleado>> actualizarDatos= tabla->{
+        listado=EmpleadoN.listadoE.get();
+        cargarTabla.accept(tabla, listado);
+        TableColumn columna = tabla.getColumnModel().getColumn(0);
+        columna.setMaxWidth(0);
+        columna.setMinWidth(0);
+        columna.setPreferredWidth(0);
+        tabla.doLayout();
+        return listado;
+    };
+    public BiConsumer<JTable, List<Empleado>> mostrarCoincidencias=(tabla, listado)->{
+        cargarTabla.accept(tabla,listado);
+        TableColumn columna = tabla.getColumnModel().getColumn(0);
+        columna.setMaxWidth(0);
+        columna.setMinWidth(0);
+        columna.setPreferredWidth(0);
+        tabla.doLayout();
+    };
 
 }

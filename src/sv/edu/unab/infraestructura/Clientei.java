@@ -5,6 +5,7 @@ import sv.edu.unab.negocio.*;
 import sv.edu.unab.presentacion.CRUDCliente;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumn;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
@@ -62,10 +63,21 @@ public class Clientei {
     public Function<JTable,List<Cliente>> actualizarDatos=tabla->{
         listado=ClienteN.listadoC.get();
         cargarTabla.accept(tabla, listado);
+        TableColumn columna = tabla.getColumnModel().getColumn(0);
+        columna.setMaxWidth(0);
+        columna.setMinWidth(0);
+        columna.setPreferredWidth(0);
+        tabla.doLayout();
         return listado;
     };
+
     public BiConsumer<JTable, List<Cliente>> mostrarCoincidencias=(tabla, listado)->{
         cargarTabla.accept(tabla,listado);
+        TableColumn columna = tabla.getColumnModel().getColumn(0);
+        columna.setMaxWidth(0);
+        columna.setMinWidth(0);
+        columna.setPreferredWidth(0);
+        tabla.doLayout();
     };
 
 }
