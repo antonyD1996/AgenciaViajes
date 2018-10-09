@@ -304,7 +304,7 @@
               <background color="-14247036"/>
               <foreground color="-1"/>
             </properties>
-            <border type="bevel-lowered" title="Datos relevantes de los Clientes:" title-justification="2">
+            <border type="bevel-lowered" title="Datos relevantes de los Empleados:" title-justification="2">
               <font/>
               <title-color color="-1"/>
             </border>

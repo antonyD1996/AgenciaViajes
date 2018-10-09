@@ -46,22 +46,23 @@ public class Clientei {
         listado.stream().forEach(p->{
             model.addRow(new Object[]{
                     p.getId(),
-                    p.getNombre(),
-                    p.getApellidopaterno(),
-                    p.getApellidomaterno(),
-                    p.getDui(),
-                    p.getNit(),
-                    p.getFechaNacimiento().format(dtf),
-                    p.getFechaNacimiento().until(LocalDate.now(), ChronoUnit.YEARS),
-                    p.getTelefono(),
-                    p.getDireccion(),
-                    p.getEmail()
+                    p.getDatosPersonales().getNombre(),
+                    p.getDatosPersonales().getApellidopaterno(),
+                    p.getDatosPersonales().getApellidomaterno(),
+                    p.getDatosPersonales().getDui(),
+                    p.getDatosPersonales().getNit(),
+                    p.getDatosPersonales().getFechaNacimiento().format(dtf),
+                    p.getDatosPersonales().getFechaNacimiento().until(LocalDate.now(), ChronoUnit.YEARS),
+                    p.getDatosPersonales().getTelefono(),
+                    p.getDatosPersonales().getDireccion(),
+                    p.getDatosPersonales().getEmail()
             });
         });
         tabla.setModel(model);
     };
-    public Function<JTable,List<Cliente>> actualizarDatos=tabla->{
-        listado=ClienteN.listadoC.get();
+    public Function<JTable,List<Cliente>> actualizarDatos= tabla->{
+        ClienteN cn=new ClienteN();
+        listado=cn.listadoClientes.get();
         cargarTabla.accept(tabla, listado);
         TableColumn columna = tabla.getColumnModel().getColumn(0);
         columna.setMaxWidth(0);

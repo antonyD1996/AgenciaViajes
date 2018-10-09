@@ -1,6 +1,5 @@
 package sv.edu.unab.infraestructura;
 
-import sv.edu.unab.dominio.Cliente;
 import sv.edu.unab.dominio.Empleado;
 import sv.edu.unab.negocio.*;
 import sv.edu.unab.presentacion.CRUDEmpleado;
@@ -8,7 +7,7 @@ import sv.edu.unab.presentacion.CRUDEmpleado;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
-import java.sql.SQLException;
+import javax.validation.constraints.Size;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
@@ -23,14 +22,14 @@ public class Empleadoi {
     EmpleadoN em=new EmpleadoN();
     CRUDEmpleado crudEmpleado;
 
-    public Consumer<Empleado> insertarEmpleado= em -> {
-        new EmpleadoN().insertarEmpleado.accept(em);
+    public Consumer<Empleado> insertarEmpleado= (e) -> {
+        new EmpleadoN().insertarEmpleado.accept(e);
     };
-    public Consumer<Empleado> editarEmpleado= em -> {
-        new EmpleadoN().editarEmpleado.accept(em);
+    public Consumer<Empleado> editarEmpleado= (e) -> {
+        new EmpleadoN().editarEmpleado.accept(e);
     };
-    public Consumer<Empleado> eliminarEmpleado= em -> {
-        new EmpleadoN().eliminarEmpleado.accept(em);
+    public Consumer<Empleado> eliminarEmpleado= e -> {
+        new EmpleadoN().eliminarEmpleado.accept(e);
     };
 
     public BiConsumer<JTable, List<Empleado>> cargarTabla=(tabla, listado)->{
@@ -52,32 +51,40 @@ public class Empleadoi {
         listado.stream().forEach(p->{
             model.addRow(new Object[]{
                     p.getId(),
-                    p.getNombre(),
-                    p.getApellidopaterno(),
-                    p.getApellidomaterno(),
-                    p.getDui(),
-                    p.getNit(),
-                    p.getFechaNacimiento().format(dtf),
-                    p.getFechaNacimiento().until(LocalDate.now(), ChronoUnit.YEARS),
-                    p.getTelefono(),
-                    p.getDireccion(),
-                    p.getEmail(),
-                    p.getSeguro(),
+                    p.getDatosPersonales().getNombre(),
+                    p.getDatosPersonales().getApellidopaterno(),
+                    p.getDatosPersonales().getApellidomaterno(),
+                    p.getDatosPersonales().getDui(),
+                    p.getDatosPersonales().getNit(),
+                    p.getDatosPersonales().getFechaNacimiento().format(dtf),
+                    p.getDatosPersonales().getFechaNacimiento().until(LocalDate.now(), ChronoUnit.YEARS),
+                    p.getDatosPersonales().getTelefono(),
+                    p.getDatosPersonales().getDireccion(),
+                    p.getDatosPersonales().getEmail(),
+                    p.getIsss(),
                     p.getAfp()
             });
         });
         tabla.setModel(model);
     };
     public Function<JTable,List<Empleado>> actualizarDatos= tabla->{
-        listado=EmpleadoN.listadoE.get();
+        EmpleadoN en=new EmpleadoN();
+        listado=en.listadoEmpleados.get();
         cargarTabla.accept(tabla, listado);
         TableColumn columna = tabla.getColumnModel().getColumn(0);
         columna.setMaxWidth(0);
         columna.setMinWidth(0);
         columna.setPreferredWidth(0);
+        ajustarColumnas(7,40,tabla);
+        ajustarColumnas(2,60,tabla);
+        ajustarColumnas(3,60,tabla);
         tabla.doLayout();
         return listado;
     };
+    private void ajustarColumnas(Integer c, Integer t, JTable tabla){
+        TableColumn columna = tabla.getColumnModel().getColumn(c);
+        columna.setPreferredWidth(t);
+    }
     public BiConsumer<JTable, List<Empleado>> mostrarCoincidencias=(tabla, listado)->{
         cargarTabla.accept(tabla,listado);
         TableColumn columna = tabla.getColumnModel().getColumn(0);

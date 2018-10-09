@@ -15,9 +15,11 @@ import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+
 import sv.edu.unab.dominio.Cliente;
+import sv.edu.unab.dominio.Empleado;
+import sv.edu.unab.dominio.Persona;
 import sv.edu.unab.infraestructura.*;
-import javax.swing.table.TableColumn;
 
 public class CRUDCliente extends JInternalFrame{
     public JPanel pnldatos;
@@ -47,15 +49,6 @@ public class CRUDCliente extends JInternalFrame{
 
     List<Cliente> listadoModel;
     long ID;
-    String Nombre;
-    String ApellidoPaterno;
-    String ApellidoMaterno;
-    String DUI;
-    String NIT;
-    LocalDate FechaN;
-    String Telefono;
-    String Direccion;
-    String Email;
     Clientei cn=new Clientei();
     DateTimeFormatter dtf=DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
@@ -68,18 +61,7 @@ public class CRUDCliente extends JInternalFrame{
         setResizable(false);
         setTitle("Clientes");
         setLayout(null);
-        setSize(800,700);
-
-//        txtNombre.setText("Antony David");
-//        txtApellidoPaterno.setText("Duarte");
-//        txtApellidoMaterno.setText("Perlera");
-//        ftxDui.setText("123456789");
-//        ftxNit.setText("12340511961231");
-//        ftxTelefono.setText("70079032");
-//        ftxFechaN.setText("05111996");
-//        txtDireccion.setText("Potrero Sula");
-//        txtEmail.setText("antony@gmail.com");
-
+        setSize(980,800);
     }
     public void initcomponentes(){
 
@@ -91,15 +73,17 @@ public class CRUDCliente extends JInternalFrame{
         btnAgregar.addActionListener(e->{
             if (txtNombre.getText()!=null){
                 Cliente c=new Cliente();
-                c.setNombre(txtNombre.getText());
-                c.setApellidopaterno(txtApellidoPaterno.getText());
-                c.setApellidomaterno(txtApellidoMaterno.getText());
-                c.setDui(ftxDui.getText().replace("-",""));
-                c.setNit(ftxNit.getText().replace("-",""));
-                c.setFechaNacimiento(LocalDate.parse(ftxFechaN.getText(),dtf));
-                c.setTelefono(ftxTelefono.getText().replace("-",""));
-                c.setEmail(txtEmail.getText());
-                c.setDireccion(txtDireccion.getText());
+                Persona p=new Persona();
+                p.setNombre(txtNombre.getText());
+                p.setApellidopaterno(txtApellidoPaterno.getText());
+                p.setApellidomaterno(txtApellidoMaterno.getText());
+                p.setDui(ftxDui.getText().replace("-",""));
+                p.setNit(ftxNit.getText().replace("-",""));
+                p.setFechaNacimiento(LocalDate.parse(ftxFechaN.getText(),dtf));
+                p.setTelefono(ftxTelefono.getText().replace("-",""));
+                p.setEmail(txtEmail.getText());
+                p.setDireccion(txtDireccion.getText());
+                c.setDatosPersonales(p);
                 try {
                     cn.insertarCliente.accept(c);
                     mostrarClientes.accept(tblCliente);
@@ -113,28 +97,34 @@ public class CRUDCliente extends JInternalFrame{
             }
         });
         btnEditar.addActionListener(e->{
-            txtNombre.setText(Nombre);
-            txtApellidoPaterno.setText(ApellidoPaterno);
-            txtApellidoMaterno.setText(ApellidoMaterno);
-            ftxDui.setText(DUI);
-            ftxNit.setText(NIT);
-            ftxTelefono.setText(Telefono);
-            ftxFechaN.setText(FechaN.format(dtf));
-            txtDireccion.setText(Direccion);
-            txtEmail.setText(Email);
+            listadoModel.forEach(m->{
+                if(m.getId().equals(ID)){
+                    txtNombre.setText(m.getDatosPersonales().getNombre());
+                    txtApellidoPaterno.setText(m.getDatosPersonales().getApellidopaterno());
+                    txtApellidoMaterno.setText(m.getDatosPersonales().getApellidomaterno());
+                    ftxDui.setText(m.getDatosPersonales().getDui());
+                    ftxNit.setText(m.getDatosPersonales().getNit());
+                    ftxTelefono.setText(m.getDatosPersonales().getTelefono());
+                    ftxFechaN.setText(m.getDatosPersonales().getFechaNacimiento().format(dtf));
+                    txtDireccion.setText(m.getDatosPersonales().getDireccion());
+                    txtEmail.setText(m.getDatosPersonales().getEmail());
+                }
+            });
         });
         btnActualizar.addActionListener(e->{
             Cliente c=new Cliente();
+            Persona p=new Persona();
+            p.setNombre(txtNombre.getText());
+            p.setApellidopaterno(txtApellidoPaterno.getText());
+            p.setApellidomaterno(txtApellidoMaterno.getText());
+            p.setDui(ftxDui.getText().replace("-",""));
+            p.setNit(ftxNit.getText().replace("-",""));
+            p.setFechaNacimiento(LocalDate.parse(ftxFechaN.getText(),dtf));
+            p.setTelefono(ftxTelefono.getText().replace("-",""));
+            p.setEmail(txtEmail.getText());
+            p.setDireccion(txtDireccion.getText());
+            c.setDatosPersonales(p);
             c.setId(ID);
-            c.setNombre(txtNombre.getText());
-            c.setApellidopaterno(txtApellidoPaterno.getText());
-            c.setApellidomaterno(txtApellidoMaterno.getText());
-            c.setDui(ftxDui.getText().replace("-",""));
-            c.setNit(ftxNit.getText().replace("-",""));
-            c.setFechaNacimiento(LocalDate.parse(ftxFechaN.getText(),dtf));
-            c.setTelefono(ftxTelefono.getText().replace("-",""));
-            c.setEmail(txtEmail.getText());
-            c.setDireccion(txtDireccion.getText());
             try {
                 cn.editarCliente.accept(c);
                 mostrarClientes.accept(tblCliente);
@@ -168,14 +158,14 @@ public class CRUDCliente extends JInternalFrame{
                 listadoModel=cn.actualizarDatos.apply(tblCliente);
                 List<Cliente> busqueda=listadoModel.stream().filter(m->{
                     boolean respuesta=false;
-                    if (m.getNombre().contains(txtBuscar.getText())||
-                            m.getApellidopaterno().contains(txtBuscar.getText())||
-                            m.getApellidomaterno().contains(txtBuscar.getText())||
-                            m.getDui().contains(txtBuscar.getText())||
-                            m.getNit().contains(txtBuscar.getText())||
-                            m.getTelefono().contains(txtBuscar.getText())||
-                            m.getDireccion().contains(txtBuscar.getText())||
-                            m.getEmail().contains(txtBuscar.getText())
+                    if (m.getDatosPersonales().getNombre().contains(txtBuscar.getText())||
+                            m.getDatosPersonales().getApellidopaterno().contains(txtBuscar.getText())||
+                            m.getDatosPersonales().getApellidomaterno().contains(txtBuscar.getText())||
+                            m.getDatosPersonales().getDui().contains(txtBuscar.getText())||
+                            m.getDatosPersonales().getNit().contains(txtBuscar.getText())||
+                            m.getDatosPersonales().getTelefono().contains(txtBuscar.getText())||
+                            m.getDatosPersonales().getDireccion().contains(txtBuscar.getText())||
+                            m.getDatosPersonales().getEmail().contains(txtBuscar.getText())
                     ){
                         respuesta=true;
                     }
@@ -192,7 +182,7 @@ public class CRUDCliente extends JInternalFrame{
                     listadoModel=cn.actualizarDatos.apply(tblCliente);
                     List<Cliente> Mayora=listadoModel.stream().filter(m->{
                         boolean respuesta=false;
-                        if (m.getFechaNacimiento().until(LocalDate.now(),ChronoUnit.YEARS)>=Integer.valueOf(txtMayorA.getText())){
+                        if (m.getDatosPersonales().getFechaNacimiento().until(LocalDate.now(),ChronoUnit.YEARS)>=Integer.valueOf(txtMayorA.getText())){
                             respuesta=true;
                         }
                         return  respuesta;
@@ -214,7 +204,7 @@ public class CRUDCliente extends JInternalFrame{
                         listadoModel=cn.actualizarDatos.apply(tblCliente);
                         List<Cliente> Menora=listadoModel.stream().filter(m->{
                             boolean respuesta=false;
-                            if (m.getFechaNacimiento().until(LocalDate.now(),ChronoUnit.YEARS)<=Integer.valueOf(txtMenorA.getText())){
+                            if (m.getDatosPersonales().getFechaNacimiento().until(LocalDate.now(),ChronoUnit.YEARS)<=Integer.valueOf(txtMenorA.getText())){
                                 respuesta=true;
 
                             }
@@ -231,15 +221,6 @@ public class CRUDCliente extends JInternalFrame{
                 try {
                     int i= tblCliente.getSelectedRow();
                     ID =Long.valueOf(tblCliente.getValueAt(i,0).toString());
-                    Nombre=(tblCliente.getValueAt(i,1).toString());
-                    ApellidoPaterno=(tblCliente.getValueAt(i,2).toString());
-                    ApellidoMaterno=(tblCliente.getValueAt(i,3).toString());
-                    DUI=(tblCliente.getValueAt(i,4).toString());
-                    NIT=(tblCliente.getValueAt(i,5).toString());
-                    FechaN=LocalDate.parse(tblCliente.getValueAt(i,6).toString(),dtf);
-                    Telefono=(tblCliente.getValueAt(i,8).toString());
-                    Direccion=(tblCliente.getValueAt(i,9).toString());
-                    Email=(tblCliente.getValueAt(i,10).toString());
                 }catch(ArrayIndexOutOfBoundsException e1){
                 }
             }
@@ -267,23 +248,23 @@ public class CRUDCliente extends JInternalFrame{
     }
     Consumer<JTable> mostrarClientes=(t)->{
             listadoModel=cn.actualizarDatos.apply(t);
-            Cliente edadMenor=listadoModel.stream().min((e1,e2)->{
-                Long edad1=e1.getFechaNacimiento().until(LocalDate.now(), ChronoUnit.YEARS);
-                Long edad2=e2.getFechaNacimiento().until(LocalDate.now(),ChronoUnit.YEARS);
+            Cliente edadMenor=listadoModel.stream().min((e1, e2)->{
+                Long edad1=e1.getDatosPersonales().getFechaNacimiento().until(LocalDate.now(), ChronoUnit.YEARS);
+                Long edad2=e2.getDatosPersonales().getFechaNacimiento().until(LocalDate.now(),ChronoUnit.YEARS);
                 return edad1.compareTo(edad2);
             }).get();
-            lblEdadMenor.setText("Menor: "+edadMenor.getNombre()+" "+edadMenor.getApellidopaterno()+"("+edadMenor.getFechaNacimiento().until(LocalDate.now(),ChronoUnit.YEARS)+" Años)");
+            lblEdadMenor.setText("Menor: "+edadMenor.getDatosPersonales().getNombre()+" "+edadMenor.getDatosPersonales().getApellidopaterno()+"("+edadMenor.getDatosPersonales().getFechaNacimiento().until(LocalDate.now(),ChronoUnit.YEARS)+" Años)");
 
-            Cliente edadMayor=listadoModel.stream().max((e1,e2)->{
-                Long edad1=e1.getFechaNacimiento().until(LocalDate.now(), ChronoUnit.YEARS);
-                Long edad2=e2.getFechaNacimiento().until(LocalDate.now(),ChronoUnit.YEARS);
+            Cliente edadMayor=listadoModel.stream().max((e1, e2)->{
+                Long edad1=e1.getDatosPersonales().getFechaNacimiento().until(LocalDate.now(), ChronoUnit.YEARS);
+                Long edad2=e2.getDatosPersonales().getFechaNacimiento().until(LocalDate.now(),ChronoUnit.YEARS);
                 return edad1.compareTo(edad2);
             }).get();
-            lblMayor.setText("Mayor: "+edadMayor.getNombre()+" "+edadMayor.getApellidopaterno()+"("+edadMayor.getFechaNacimiento().until(LocalDate.now(),ChronoUnit.YEARS)+" Años)");
+            lblMayor.setText("Mayor: "+edadMayor.getDatosPersonales().getNombre()+" "+edadMayor.getDatosPersonales().getApellidopaterno()+"("+edadMayor.getDatosPersonales().getFechaNacimiento().until(LocalDate.now(),ChronoUnit.YEARS)+" Años)");
 
             BigDecimal edadPromedio=listadoModel.stream()
                     .map(e->{
-                        Long edad=e.getFechaNacimiento().until(LocalDate.now(),ChronoUnit.YEARS);
+                        Long edad=e.getDatosPersonales().getFechaNacimiento().until(LocalDate.now(),ChronoUnit.YEARS);
                         return new BigDecimal(edad);
                     })
                     .reduce((e1,e2)->(e1.add(e2).divide(new BigDecimal(2)))).get();

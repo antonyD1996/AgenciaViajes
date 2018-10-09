@@ -1,21 +1,21 @@
 package sv.edu.unab.presentacion;
 
 import sv.edu.unab.dominio.Empleado;
+import sv.edu.unab.dominio.Persona;
 import sv.edu.unab.infraestructura.Empleadoi;
 
 import javax.swing.*;
 import java.awt.event.*;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
+import java.util.function.*;
 import java.util.stream.Collectors;
+import java.time.temporal.*;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 public class CRUDEmpleado extends JInternalFrame{
     public JPanel pnlroot;
@@ -46,17 +46,6 @@ public class CRUDEmpleado extends JInternalFrame{
 
     List<Empleado> listadoModel;
     long ID;
-    String Nombre;
-    String ApellidoPaterno;
-    String ApellidoMaterno;
-    String DUI;
-    String NIT;
-    LocalDate FechaN;
-    String Telefono;
-    String Direccion;
-    String Email;
-    String Seguro;
-    String AFP;
     Empleadoi emp=new Empleadoi();
     DateTimeFormatter dtf=DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
@@ -69,18 +58,18 @@ public class CRUDEmpleado extends JInternalFrame{
         setResizable(false);
         setTitle("Empleados");
         setLayout(null);
-        setSize(800,700);
-//        txtNombre.setText("Antony David");
-//        txtApellidoPaterno.setText("Duarte");
-//        txtApellidoMaterno.setText("Perlera");
-//        ftxDui.setText("123456789");
-//        ftxNit.setText("12340511961231");
-//        ftxTelefono.setText("70079032");
-//        ftxFechaN.setText("05111996");
-//        txtDireccion.setText("Potrero Sula");
-//        txtEmail.setText("antony@gmail.com");
-//        txtSeguro.setText("123456789");
-//        txtAFP.setText("Crecer");
+        setSize(900,800);
+        txtNombre.setText("Antony David");
+        txtApellidoPaterno.setText("Duarte");
+        txtApellidoMaterno.setText("Perlera");
+        ftxDui.setText("123456789");
+        ftxNit.setText("12340511961231");
+        ftxTelefono.setText("70079032");
+        ftxFechaN.setText("05111996");
+        txtDireccion.setText("Potrero Sula");
+        txtEmail.setText("antony@gmail.com");
+        txtSeguro.setText("123456789");
+        txtAFP.setText("Crecer");
     }
 
     public void initcomponentes() {
@@ -92,17 +81,19 @@ public class CRUDEmpleado extends JInternalFrame{
         }
         btnAgregar.addActionListener(e->{
             if (txtNombre.getText()!=null){
+                Persona p=new Persona();
                 Empleado em=new Empleado();
-                em.setNombre(txtNombre.getText());
-                em.setApellidopaterno(txtApellidoPaterno.getText());
-                em.setApellidomaterno(txtApellidoMaterno.getText());
-                em.setDui(ftxDui.getText().replace("-",""));
-                em.setNit(ftxNit.getText().replace("-",""));
-                em.setFechaNacimiento(LocalDate.parse(ftxFechaN.getText(),dtf));
-                em.setTelefono(ftxTelefono.getText().replace("-",""));
-                em.setEmail(txtEmail.getText());
-                em.setDireccion(txtDireccion.getText());
-                em.setSeguro(txtSeguro.getText());
+                p.setNombre(txtNombre.getText());
+                p.setApellidopaterno(txtApellidoPaterno.getText());
+                p.setApellidomaterno(txtApellidoMaterno.getText());
+                p.setDui(ftxDui.getText().replace("-",""));
+                p.setNit(ftxNit.getText().replace("-",""));
+                p.setFechaNacimiento(LocalDate.parse(ftxFechaN.getText(),dtf));
+                p.setTelefono(ftxTelefono.getText().replace("-",""));
+                p.setEmail(txtEmail.getText());
+                p.setDireccion(txtDireccion.getText());
+                em.setDatosPersonales(p);
+                em.setIsss(txtSeguro.getText());
                 em.setAfp(txtAFP.getText());
                 try {
                     emp.insertarEmpleado.accept(em);
@@ -117,31 +108,38 @@ public class CRUDEmpleado extends JInternalFrame{
             }
         });
         btnEditar.addActionListener(e->{
-            txtNombre.setText(Nombre);
-            txtApellidoPaterno.setText(ApellidoPaterno);
-            txtApellidoMaterno.setText(ApellidoMaterno);
-            ftxDui.setText(DUI);
-            ftxNit.setText(NIT);
-            ftxTelefono.setText(Telefono);
-            ftxFechaN.setText(FechaN.format(dtf));
-            txtDireccion.setText(Direccion);
-            txtEmail.setText(Email);
-            txtSeguro.setText(Seguro);
-            txtAFP.setText(AFP);
+            listadoModel.forEach(m->{
+                if(m.getId().equals(ID)){
+                    txtNombre.setText(m.getDatosPersonales().getNombre());
+                    txtApellidoPaterno.setText(m.getDatosPersonales().getApellidopaterno());
+                    txtApellidoMaterno.setText(m.getDatosPersonales().getApellidomaterno());
+                    ftxDui.setText(m.getDatosPersonales().getDui());
+                    ftxNit.setText(m.getDatosPersonales().getNit());
+                    ftxTelefono.setText(m.getDatosPersonales().getTelefono());
+                    ftxFechaN.setText(m.getDatosPersonales().getFechaNacimiento().format(dtf));
+                    txtDireccion.setText(m.getDatosPersonales().getDireccion());
+                    txtEmail.setText(m.getDatosPersonales().getEmail());
+                    txtSeguro.setText(m.getIsss());
+                    txtAFP.setText(m.getAfp());
+                }
+            });
+
         });
         btnActualizar.addActionListener(e->{
             Empleado em=new Empleado();
+            Persona p=new Persona();
+            p.setNombre(txtNombre.getText());
+            p.setApellidopaterno(txtApellidoPaterno.getText());
+            p.setApellidomaterno(txtApellidoMaterno.getText());
+            p.setDui(ftxDui.getText().replace("-",""));
+            p.setNit(ftxNit.getText().replace("-",""));
+            p.setFechaNacimiento(LocalDate.parse(ftxFechaN.getText(),dtf));
+            p.setTelefono(ftxTelefono.getText().replace("-",""));
+            p.setEmail(txtEmail.getText());
+            p.setDireccion(txtDireccion.getText());
+            em.setDatosPersonales(p);
             em.setId(ID);
-            em.setNombre(txtNombre.getText());
-            em.setApellidopaterno(txtApellidoPaterno.getText());
-            em.setApellidomaterno(txtApellidoMaterno.getText());
-            em.setDui(ftxDui.getText().replace("-",""));
-            em.setNit(ftxNit.getText().replace("-",""));
-            em.setFechaNacimiento(LocalDate.parse(ftxFechaN.getText(),dtf));
-            em.setTelefono(ftxTelefono.getText().replace("-",""));
-            em.setEmail(txtEmail.getText());
-            em.setDireccion(txtDireccion.getText());
-            em.setSeguro(txtSeguro.getText());
+            em.setIsss(txtSeguro.getText());
             em.setAfp(txtAFP.getText());
             try {
                 emp.editarEmpleado.accept(em);
@@ -188,21 +186,23 @@ public class CRUDEmpleado extends JInternalFrame{
                 listadoModel=emp.actualizarDatos.apply(tblEmpleado);
                 List<Empleado> busqueda=listadoModel.stream().filter(m->{
                     boolean respuesta=false;
-                    if (m.getNombre().contains(txtBuscar.getText())||
-                            m.getApellidopaterno().contains(txtBuscar.getText())||
-                            m.getApellidomaterno().contains(txtBuscar.getText())||
-                            m.getDui().contains(txtBuscar.getText())||
-                            m.getNit().contains(txtBuscar.getText())||
-                            m.getTelefono().contains(txtBuscar.getText())||
-                            m.getDireccion().contains(txtBuscar.getText())||
-                            m.getEmail().contains(txtBuscar.getText())
+                    if (m.getDatosPersonales().getNombre().contains(txtBuscar.getText())||
+                            m.getDatosPersonales().getApellidopaterno().contains(txtBuscar.getText())||
+                            m.getDatosPersonales().getApellidomaterno().contains(txtBuscar.getText())||
+                            m.getDatosPersonales().getDui().contains(txtBuscar.getText())||
+                            m.getDatosPersonales().getNit().contains(txtBuscar.getText())||
+                            m.getDatosPersonales().getTelefono().contains(txtBuscar.getText())||
+                            m.getDatosPersonales().getDireccion().contains(txtBuscar.getText())||
+                            m.getDatosPersonales().getEmail().contains(txtBuscar.getText())||
+                            m.getAfp().contains(txtBuscar.getText())||
+                            m.getIsss().contains(txtBuscar.getText())
                     ){
                         respuesta=true;
                     }
                     return  respuesta;
                 }).collect(Collectors.toList());
                 mostrarCoincidencias.accept(tblEmpleado,busqueda);
-            }
+             }
         });
         txtMayorA.addKeyListener(new KeyAdapter() {
             @Override
@@ -212,7 +212,7 @@ public class CRUDEmpleado extends JInternalFrame{
                     listadoModel=emp.actualizarDatos.apply(tblEmpleado);
                     List<Empleado> Mayora=listadoModel.stream().filter(m->{
                         boolean respuesta=false;
-                        if (m.getFechaNacimiento().until(LocalDate.now(),ChronoUnit.YEARS)>=Integer.valueOf(txtMayorA.getText())){
+                        if (m.getDatosPersonales().getFechaNacimiento().until(LocalDate.now(),ChronoUnit.YEARS)>=Integer.valueOf(txtMayorA.getText())){
                             respuesta=true;
                         }
                         return  respuesta;
@@ -234,7 +234,7 @@ public class CRUDEmpleado extends JInternalFrame{
                         listadoModel=emp.actualizarDatos.apply(tblEmpleado);
                         List<Empleado> Menora=listadoModel.stream().filter(m->{
                             boolean respuesta=false;
-                            if (m.getFechaNacimiento().until(LocalDate.now(),ChronoUnit.YEARS)<=Integer.valueOf(txtMenorA.getText())){
+                            if (m.getDatosPersonales().getFechaNacimiento().until(LocalDate.now(),ChronoUnit.YEARS)<=Integer.valueOf(txtMenorA.getText())){
                                 respuesta=true;
 
                             }
@@ -252,17 +252,6 @@ public class CRUDEmpleado extends JInternalFrame{
                 try {
                     int i=tblEmpleado.getSelectedRow();
                     ID =Long.valueOf(tblEmpleado.getValueAt(i,0).toString());
-                    Nombre=(tblEmpleado.getValueAt(i,1).toString());
-                    ApellidoPaterno=(tblEmpleado.getValueAt(i,2).toString());
-                    ApellidoMaterno=(tblEmpleado.getValueAt(i,3).toString());
-                    DUI=(tblEmpleado.getValueAt(i,4).toString());
-                    NIT=(tblEmpleado.getValueAt(i,5).toString());
-                    FechaN=LocalDate.parse(tblEmpleado.getValueAt(i,6).toString(),dtf);
-                    Telefono=(tblEmpleado.getValueAt(i,8).toString());
-                    Direccion=(tblEmpleado.getValueAt(i,9).toString());
-                    Email=(tblEmpleado.getValueAt(i,10).toString());
-                    Seguro=(tblEmpleado.getValueAt(i,11).toString());
-                    AFP=(tblEmpleado.getValueAt(i,12).toString());
                 }catch (ArrayIndexOutOfBoundsException e1){
 
                 }
@@ -275,33 +264,33 @@ public class CRUDEmpleado extends JInternalFrame{
     }
     Consumer<JTable> mostrarEmpleados=(t)->{
         listadoModel=emp.actualizarDatos.apply(t);
-        Empleado edadMenor=listadoModel.stream().min((e1,e2)->{
-            Long edad1=e1.getFechaNacimiento().until(LocalDate.now(), ChronoUnit.YEARS);
-            Long edad2=e2.getFechaNacimiento().until(LocalDate.now(),ChronoUnit.YEARS);
+        Empleado edadMenor=listadoModel.stream().min((e1, e2)->{
+            Long edad1=e1.getDatosPersonales().getFechaNacimiento().until(LocalDate.now(), ChronoUnit.YEARS);
+            Long edad2=e2.getDatosPersonales().getFechaNacimiento().until(LocalDate.now(),ChronoUnit.YEARS);
             return edad1.compareTo(edad2);
         }).get();
-        lblEdadMenor.setText("Menor: "+edadMenor.getNombre()+" "+edadMenor.getApellidopaterno()+"("+edadMenor.getFechaNacimiento().until(LocalDate.now(),ChronoUnit.YEARS)+" Años)");
+        lblEdadMenor.setText("Menor: "+edadMenor.getDatosPersonales().getNombre()+" "+edadMenor.getDatosPersonales().getApellidopaterno()+"("+edadMenor.getDatosPersonales().getFechaNacimiento().until(LocalDate.now(),ChronoUnit.YEARS)+" Años)");
 
-        Empleado edadMayor=listadoModel.stream().max((e1,e2)->{
-            Long edad1=e1.getFechaNacimiento().until(LocalDate.now(), ChronoUnit.YEARS);
-            Long edad2=e2.getFechaNacimiento().until(LocalDate.now(),ChronoUnit.YEARS);
+        Empleado edadMayor=listadoModel.stream().max((e1, e2)->{
+            Long edad1=e1.getDatosPersonales().getFechaNacimiento().until(LocalDate.now(), ChronoUnit.YEARS);
+            Long edad2=e2.getDatosPersonales().getFechaNacimiento().until(LocalDate.now(),ChronoUnit.YEARS);
             return edad1.compareTo(edad2);
         }).get();
-        lblMayor.setText("Mayor: "+edadMayor.getNombre()+" "+edadMayor.getApellidopaterno()+"("+edadMayor.getFechaNacimiento().until(LocalDate.now(),ChronoUnit.YEARS)+" Años)");
+        lblMayor.setText("Mayor: "+edadMayor.getDatosPersonales().getNombre()+" "+edadMayor.getDatosPersonales().getApellidopaterno()+"("+edadMayor.getDatosPersonales().getFechaNacimiento().until(LocalDate.now(),ChronoUnit.YEARS)+" Años)");
 
         BigDecimal edadPromedio=listadoModel.stream()
                 .map(e->{
-                    Long edad=e.getFechaNacimiento().until(LocalDate.now(),ChronoUnit.YEARS);
-                    return new BigDecimal(edad);
-                })
+                    Long edad=e.getDatosPersonales().getFechaNacimiento().until(LocalDate.now(),ChronoUnit.YEARS);
+                   return new BigDecimal(edad);
+               })
                 .reduce((e1,e2)->(e1.add(e2).divide(new BigDecimal(2)))).get();
         BigDecimal bd=edadPromedio.setScale(2, RoundingMode.HALF_UP);
-        lblEdadProm.setText("Edad Promedio: "+bd.setScale(2,RoundingMode.HALF_UP).toString()+" Años");
+       lblEdadProm.setText("Edad Promedio: "+bd.setScale(2,RoundingMode.HALF_UP).toString()+" Años");
             emp.actualizarDatos.apply(t);
     };
         BiConsumer<JTable,List<Empleado>> mostrarCoincidencias=(t, l)->{
-            emp.mostrarCoincidencias.accept(t,l);
-        };
+           emp.mostrarCoincidencias.accept(t,l);
+       };
     public void limpiar(){
         txtNombre.setText(null);
         txtApellidoPaterno.setText(null);

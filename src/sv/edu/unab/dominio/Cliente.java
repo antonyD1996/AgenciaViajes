@@ -1,17 +1,66 @@
 package sv.edu.unab.dominio;
 
-import java.time.LocalDate;
+import javax.persistence.*;
+import java.io.Serializable;
+import java.util.StringJoiner;
 
-public class Cliente extends Persona {
-    public Cliente() {
+@Entity
+@Table(schema = "avr",name = "clientes")
+@SequenceGenerator(schema = "avr",sequenceName = "clientes_id_seq",name = "Cliente_seq_id",allocationSize = 1)
+@NamedQueries({
+        @NamedQuery(name = "Cliente.findAll",query = "SELECT c FROM Cliente c")
+})
+public class Cliente implements Serializable {
+    private static final long serialVersionUID=1L;
+
+    @Id
+    @GeneratedValue(strategy =GenerationType.SEQUENCE,generator = "Cliente_seq_id")
+    @Column(name="id")
+    private Long id;
+    @OneToOne(cascade = CascadeType.ALL,fetch = FetchType.LAZY,targetEntity = Persona.class,optional = false)
+    @JoinColumn(name = "idpersona",referencedColumnName = "id",unique = true)
+    private Persona datosPersonales;
+
+    public static long getSerialVersionUID() {
+        return serialVersionUID;
     }
 
-    public Cliente(Long id) {
-        super(id);
+    public Long getId() {
+        return id;
     }
 
-    public Cliente(Long id, String nombre, String apellidopaterno, String apellidomaterno, String dui, String nit, LocalDate fechaNacimiento, String telefono, String direccion, String email) {
-        super(id, nombre, apellidopaterno, apellidomaterno, dui, nit, fechaNacimiento, telefono, direccion, email);
+    public void setId(Long id) {
+        this.id = id;
     }
 
+    public Persona getDatosPersonales() {
+        return datosPersonales;
+    }
+
+    public void setDatosPersonales(Persona datosPersonales) {
+        this.datosPersonales = datosPersonales;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Cliente)) return false;
+
+        Cliente cliente = (Cliente) o;
+
+        return id.equals(cliente.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return id.hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return new StringJoiner(", ", Cliente.class.getSimpleName() + "[", "]")
+                .add("id=" + id)
+                .add("datosPersonales=" + datosPersonales)
+                .toString();
+    }
 }
