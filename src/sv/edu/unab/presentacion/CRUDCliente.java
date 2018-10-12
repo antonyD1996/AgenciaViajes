@@ -50,6 +50,7 @@ public class CRUDCliente extends JInternalFrame{
     List<Cliente> listadoModel;
     long ID;
     Clientei cn=new Clientei();
+    Long idPersona;
     DateTimeFormatter dtf=DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     public CRUDCliente() {
@@ -99,6 +100,7 @@ public class CRUDCliente extends JInternalFrame{
         btnEditar.addActionListener(e->{
             listadoModel.forEach(m->{
                 if(m.getId().equals(ID)){
+                    idPersona=Long.valueOf(m.getDatosPersonales().getId());
                     txtNombre.setText(m.getDatosPersonales().getNombre());
                     txtApellidoPaterno.setText(m.getDatosPersonales().getApellidopaterno());
                     txtApellidoMaterno.setText(m.getDatosPersonales().getApellidomaterno());
@@ -109,11 +111,14 @@ public class CRUDCliente extends JInternalFrame{
                     txtDireccion.setText(m.getDatosPersonales().getDireccion());
                     txtEmail.setText(m.getDatosPersonales().getEmail());
                 }
+
             });
+
         });
         btnActualizar.addActionListener(e->{
             Cliente c=new Cliente();
             Persona p=new Persona();
+            p.setId(idPersona);
             p.setNombre(txtNombre.getText());
             p.setApellidopaterno(txtApellidoPaterno.getText());
             p.setApellidomaterno(txtApellidoMaterno.getText());

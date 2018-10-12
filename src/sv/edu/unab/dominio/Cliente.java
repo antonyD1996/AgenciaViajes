@@ -8,7 +8,7 @@ import java.util.StringJoiner;
 @Table(schema = "avr",name = "clientes")
 @SequenceGenerator(schema = "avr",sequenceName = "clientes_id_seq",name = "Cliente_seq_id",allocationSize = 1)
 @NamedQueries({
-        @NamedQuery(name = "Cliente.findAll",query = "SELECT c FROM Cliente c")
+        @NamedQuery(name = "Cliente.findAll",query = "SELECT c FROM Cliente c order by c.id")
 })
 public class Cliente implements Serializable {
     private static final long serialVersionUID=1L;

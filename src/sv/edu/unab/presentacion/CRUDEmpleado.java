@@ -46,6 +46,7 @@ public class CRUDEmpleado extends JInternalFrame{
 
     List<Empleado> listadoModel;
     long ID;
+    Long idPersona;
     Empleadoi emp=new Empleadoi();
     DateTimeFormatter dtf=DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
@@ -110,6 +111,7 @@ public class CRUDEmpleado extends JInternalFrame{
         btnEditar.addActionListener(e->{
             listadoModel.forEach(m->{
                 if(m.getId().equals(ID)){
+                    idPersona=Long.valueOf(m.getDatosPersonales().getId());
                     txtNombre.setText(m.getDatosPersonales().getNombre());
                     txtApellidoPaterno.setText(m.getDatosPersonales().getApellidopaterno());
                     txtApellidoMaterno.setText(m.getDatosPersonales().getApellidomaterno());
@@ -121,6 +123,7 @@ public class CRUDEmpleado extends JInternalFrame{
                     txtEmail.setText(m.getDatosPersonales().getEmail());
                     txtSeguro.setText(m.getIsss());
                     txtAFP.setText(m.getAfp());
+                    JOptionPane.showMessageDialog(null,m.toString());
                 }
             });
 
@@ -128,6 +131,7 @@ public class CRUDEmpleado extends JInternalFrame{
         btnActualizar.addActionListener(e->{
             Empleado em=new Empleado();
             Persona p=new Persona();
+            p.setId(idPersona);
             p.setNombre(txtNombre.getText());
             p.setApellidopaterno(txtApellidoPaterno.getText());
             p.setApellidomaterno(txtApellidoMaterno.getText());

@@ -26,7 +26,6 @@ public class EmpleadoN {
         LOG.log(Level.INFO,"[EmpleadoN][INIT]->Insertar Empleado");
         try {
             em.getTransaction().begin();
-            e.setDatosPersonales(e.getDatosPersonales());
             em.persist(e);
             em.getTransaction().commit();
         }finally {
@@ -41,6 +40,7 @@ public class EmpleadoN {
             emp.setDatosPersonales(e.getDatosPersonales());
             emp.setIsss(e.getIsss());
             emp.setAfp(e.getAfp());
+            em.merge(emp);
             em.getTransaction().commit();
         }finally {
             em.close();
